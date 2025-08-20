@@ -1,15 +1,19 @@
 #include "AD7606.h"
+#include "AD7606_config.h"
 
-#define USE_MACRO_DELAY      0                              // 0: Use handler delay ,So you have to set ADC_Delay_US in Handler | 1: use Macro delay, So you have to set MACRO_DELAY_US Macro
-#define MACRO_DELAY_US(x)    Delay_us(x)                    // If you want to use Macro delay, place your delay function in microseconds here
+#if !defined(USE_MACRO_DELAY)
+#warning "USE_MACRO_DELAYis not defined. Please define it in AD7606_config.h"
+#define USE_MACRO_DELAY 0
+#endif
 
 // Delay configuration: (DO NOT EDIT THIS BLOCK)
 #if USE_MACRO_DELAY == 0
 #define Delay_US(x)   adcHandler->ADC_Delay_US(x)
 #else
-#define Delay_US(x)   MACRO_DELAY_US(x)
-#ifndef MACRO_DELAY_US
+#if !defined(MACRO_DELAY_US)
 #error "MACRO_DELAY_US is not defined. Please Use handler delay or config MACRO_DELAY_US macro, You can choose it on USE_MACRO_DELAY define"
+#else
+#define Delay_US(x)   MACRO_DELAY_US(x)
 #endif
 #endif
 
@@ -31,9 +35,6 @@ typedef union Union_Int16 // cuz bug
 	};
 	uint8_t Array[2];
 } Type_Int16;
-
-//static uint8_t tempAdcDataHolder[16] = { 0 };
-static volatile Type_Int16 tempAdcDataHolder[8] = { 0 };
 
 /* Functions ------------------------------------------------------------------------------------ */
 void AD7606_Init(Type_AD7606Handler* adcHandler)
@@ -61,6 +62,8 @@ void AD7606_ConvertStart(Type_AD7606Handler* adcHandler)
 }
 void AD7606_Read(Type_AD7606Handler* adcHandler, int16_t* data)
 {
+  Type_Int16 tempAdcDataHolder[8] = { 0 };
+  
   adcHandler->ADC_CS_LOW();
   Delay_US(1);
   adcHandler->ADC_Receive((uint8_t*)tempAdcDataHolder, sizeof(int16_t) * 8);
