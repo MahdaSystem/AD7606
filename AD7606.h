@@ -1,13 +1,13 @@
 /**
   ******************************************************************************
-  * File Name          : AD7606_port.h
-  * Description        : AD7606 ADC Driver port header file.
-	* Last Update				 : 20-Aug-2025
-	*	Author						 : Hossein.M
-	* Github						 : https://github.com/Hossein-M98
+  * File Name          : AD7606.h
+  * Description        : AD7606 ADC Driver header file.
+	* Last Update				 : 09-06-2022
+	*	Author						 : Mohammad Sayadi
+	* E-Mail						 : mo.sayadi@gmail.com
   ******************************************************************************
   *
-  * Copyright (c) 2025 Mahda Embedded Systems 
+  * Copyright (c) 2022 Mahda Embedded Systems 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -44,41 +44,33 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __AD7606_PORT_H
-#define __AD7606_PORT_H
+#ifndef __AD7606_H
+#define __AD7606_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
 #include "main.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "NopDelay.h"
 
-#define AD7606_MS0_GPIO     AD7606_MS0_GPIO_Port
+/* Private define ------------------------------------------------------------*/
+typedef struct Struct_AD7606Handler
+{
+  void (*ADC_CS_HIGH)(void);               // Must be initialized
+  void (*ADC_CS_LOW)(void);                // Must be initialized
+  void (*ADC_START_HIGH)(void);            // If you don't want to use software start, the START pin must be pulled down then pass this as NULL
+  void (*ADC_START_LOW)(void);             // If you don't want to use software start, the START pin must be pulled down then pass this as NULL
+  void (*ADC_RESET_HIGH)(void);            // If you want to use software reset, the RESET pin must be pulled up then pass this as NULL
+  void (*ADC_RESET_LOW)(void);             // If you want to use software reset, the RESET pin must be pulled up then pass this as NULL
+  void (*ADC_Receive)(uint8_t*, uint32_t); // Must be initialized
+  uint8_t (*ADC_DRDY_Read)(void);          // Can be initialized
+  void (*ADC_Delay_US)(uint32_t);          // If you want to use Macro delay, you have to enable - define, Otherwise This function must be initialized!
+} Type_AD7606Handler;
 
-#define AD7606_MCS_GPIO     AD7606_MCS_GPIO_Port
-#define AD7606_MCS_PIN      AD7606_MCS_Pin
+/* Functions -----------------------------------------------------------------*/
+void AD7606_Init(Type_AD7606Handler* adcHandler);
+void AD7606_ConvertStart(Type_AD7606Handler* adcHandler);
+void AD7606_Read(Type_AD7606Handler* adcHandler, int16_t* data);
 
-#define AD7606_RDSCLK_GPIO  AD7606_RDSCLK_GPIO_Port
-#define AD7606_RDSCLK_PIN   AD7606_RDSCLK_Pin
-
-#define AD7606_CONVST_GPIO  AD7606_CONVST_GPIO_Port
-#define AD7606_CONVST_PIN   AD7606_CONVST_Pin
-
-#define AD7606_RESET_GPIO   AD7606_RESET_GPIO_Port
-#define AD7606_RESET_PIN    AD7606_RESET_Pin
-
-#define AD7606_RANGE_GPIO   AD7606_RANGE_GPIO_Port
-#define AD7606_RANGE_PIN    AD7606_RANGE_Pin
-
-#define AD7606_OS1_GPIO     AD7606_OS1_GPIO_Port
-#define AD7606_OS1_PIN      AD7606_OS1_Pin
-
-#define AD7606_OS2_GPIO     AD7606_OS2_GPIO_Port
-#define AD7606_OS2_PIN      AD7606_OS2_Pin
-
-#define AD7606_BUSY_GPIO    AD7606_BUSY_GPIO_Port
-#define AD7606_BUSY_PIN     AD7606_BUSY_Pin
-
-#define AD7606_D0_GPIO      AD7606_D0_GPIO_Port
-#define AD7606_D8_GPIO      AD7606_D8_GPIO_Port
-
-#endif /* __AD7606_PORT_H */
+#endif /* __AD7606_H */
 /************************ (C) COPYRIGHT MAHDA EMBEDDED SYSTEMS *****END OF FILE****/
